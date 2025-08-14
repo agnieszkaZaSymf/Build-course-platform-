@@ -1,0 +1,47 @@
+import {
+  jsonb,
+  pgTable,
+  uuid,
+  text,
+  timestamp,
+  integer,
+} from "drizzle-orm/pg-core";
+import { createdAt, id, updatedAt } from "../schemaHelpers";
+import { UserTable } from "./user";
+import { ProductsTable } from "./products";
+import { relations } from "drizzle-orm";
+
+export const PurchaseTable = pgTable("purchase", {
+  id,
+  pricePaidInCents: integer().notNull(),
+  productDetails: jsonb().notNull().$type<{
+    name: string;
+    description: string;
+    imageUrl: string;
+  }>(),
+  userId: uuid()
+    .notNull()
+    .references(() => UserTable.id, {
+      onDelete: "restrict",
+    }),
+  productId: uuid()
+    .notNull()
+    .references(() => ProductsTable.id, {
+      onDelete: "restrict",
+    }),
+  stripeSessionId: text().notNull().unique(),
+  refundedAt: timestamp({ withTimezone: true }),
+  createdAt,
+  updatedAt,
+});
+
+export const PurchaseRelationships = relations(PurchaseTable, ({ one }) => ({
+  user: one(UserTable, {
+    fields: [PurchaseTable.userId],
+    references: [UserTable.id],
+  }),
+  product: one(ProductsTable, {
+    fields: [PurchaseTable.productId],
+    references: [ProductsTable.id],
+  }),
+}));
