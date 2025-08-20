@@ -1,4 +1,3 @@
-import { ActionButton } from "@/components/ActionButton";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,13 +7,15 @@ import { db } from "@/drizzle/db";
 import { CourseSectionTable, CourseTable, LessonTable } from "@/drizzle/schema";
 import { CourseForm } from "@/features/courses/components/CouseForm";
 import { getCourseIdTag } from "@/features/courses/db/cache/courses";
-import { deleteSection } from "@/features/courseSections/actions/sections";
 import { SectionFormDialog } from "@/features/courseSections/components/SectionFormDialog";
+import { SortableSectionList } from "@/features/courseSections/components/SortableSectionList";
 import { getCourseSectionCourseTag } from "@/features/courseSections/db/cache";
+import { LessonFormDialog } from "@/features/lessons/components/LessonFormDialog";
+import { SortableLessonList } from "@/features/lessons/components/SortableLessonList";
 import { getLessonCourseTag } from "@/features/lessons/db/cache/lessons";
 import { cn } from "@/lib/utils";
 import { asc, eq } from "drizzle-orm";
-import { EyeClosedIcon, PlusIcon, Trash2, Trash2Icon } from "lucide-react";
+import { EyeClosed, PlusIcon } from "lucide-react";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 import { notFound } from "next/navigation";
 
@@ -36,7 +37,7 @@ export default async function EditCoursePage({
           <TabsTrigger value="lessons">Lessons</TabsTrigger>
           <TabsTrigger value="details">Details</TabsTrigger>
         </TabsList>
-        <TabsContent value="lessons">
+        <TabsContent value="lessons" className="flex flex-col gap-2">
           <Card>
             <CardHeader className="flex items-center flex-row justify-between">
               <CardTitle>Sections</CardTitle>
@@ -49,39 +50,43 @@ export default async function EditCoursePage({
               </SectionFormDialog>
             </CardHeader>
             <CardContent>
-              {course.courseSections.map((section) => (
-                <div key={section.id} className="flex items-center gap-1">
-                  <div
-                    className={cn(
-                      "contents",
-                      section.status === "private" && "text-muted-foreground"
-                    )}
-                  >
-                    {section.status === "private" && (
-                      <EyeClosedIcon className="size-4" />
-                    )}
-                    {section.name}
-                  </div>
-                  <SectionFormDialog courseId={courseId} section={section}>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" size="sm" className="ml-auto">
-                        Edit
-                      </Button>
-                    </DialogTrigger>
-                  </SectionFormDialog>
-                  <ActionButton
-                    action={deleteSection.bind(null, section.id)}
-                    requiredAreSure
-                    variant="destructiveOutline"
-                    size="sm"
-                  >
-                    <Trash2Icon />
-                    <span className="sr-only">Delete</span>
-                  </ActionButton>
-                </div>
-              ))}
+              <SortableSectionList
+                courseId={course.id}
+                sections={course.courseSections}
+              />
             </CardContent>
           </Card>
+          <hr className="my-2" />
+          {course.courseSections.map((section) => (
+            <Card key={section.id}>
+              <CardHeader className="flex items-center flex-row justify-between gap-4">
+                <CardTitle
+                  className={cn(
+                    "flex items-center gap-2",
+                    section.status === "private" && "text-muted-foreground"
+                  )}
+                >
+                  {section.status === "private" && <EyeClosed />} {section.name}
+                </CardTitle>
+                <LessonFormDialog
+                  defaultSectionId={section.id}
+                  sections={course.courseSections}
+                >
+                  <DialogTrigger asChild>
+                    <Button variant="outline">
+                      <PlusIcon /> New Lesson
+                    </Button>
+                  </DialogTrigger>
+                </LessonFormDialog>
+              </CardHeader>
+              <CardContent>
+                <SortableLessonList
+                  sections={course.courseSections}
+                  lessons={section.lessons}
+                />
+              </CardContent>
+            </Card>
+          ))}
         </TabsContent>
         <TabsContent value="details">
           <Card>
@@ -118,7 +123,7 @@ async function getCourse(id: string) {
               name: true,
               status: true,
               description: true,
-              youTubeVideoId: true,
+              youtubeVideoId: true,
               sectionId: true,
             },
           },
