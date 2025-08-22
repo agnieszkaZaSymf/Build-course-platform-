@@ -7,7 +7,7 @@ export const productStatus = ["public", "private"] as const;
 export type ProductStatus = (typeof productStatus)[number];
 export const productsStatusEnum = pgEnum("product_status", productStatus);
 
-export const ProductsTable = pgTable("products", {
+export const ProductTable = pgTable("products", {
   id,
   name: text().notNull(),
   description: text().notNull(),
@@ -19,6 +19,6 @@ export const ProductsTable = pgTable("products", {
 });
 
 // 1 produkt moze byc w wielu kursach. dzieki
-export const ProductsRelationships = relations(ProductsTable, ({ many }) => ({
+export const ProductRelationships = relations(ProductTable, ({ many }) => ({
   courseProducts: many(CourseProductTable),
 }));

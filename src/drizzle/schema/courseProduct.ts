@@ -1,6 +1,6 @@
 import { pgTable, uuid, primaryKey } from "drizzle-orm/pg-core";
 import { CourseTable } from "./course";
-import { ProductsTable } from "./products";
+import { ProductTable } from "./product";
 import { createdAt, updatedAt } from "../schemaHelpers";
 import { relations } from "drizzle-orm";
 
@@ -16,7 +16,7 @@ export const CourseProductTable = pgTable(
       .references(() => CourseTable.id, { onDelete: "restrict" }),
     productId: uuid()
       .notNull()
-      .references(() => ProductsTable.id, { onDelete: "cascade" }),
+      .references(() => ProductTable.id, { onDelete: "cascade" }),
     createdAt,
     updatedAt,
   },
@@ -30,9 +30,9 @@ export const CourseProductRelationships = relations(
       fields: [CourseProductTable.courseId],
       references: [CourseTable.id],
     }),
-    product: one(ProductsTable, {
+    product: one(ProductTable, {
       fields: [CourseProductTable.productId],
-      references: [ProductsTable.id],
+      references: [ProductTable.id],
     }),
   })
 );

@@ -8,7 +8,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { createdAt, id, updatedAt } from "../schemaHelpers";
 import { UserTable } from "./user";
-import { ProductsTable } from "./products";
+import { ProductTable } from "./product";
 import { relations } from "drizzle-orm";
 
 export const PurchaseTable = pgTable("purchase", {
@@ -26,7 +26,7 @@ export const PurchaseTable = pgTable("purchase", {
     }),
   productId: uuid()
     .notNull()
-    .references(() => ProductsTable.id, {
+    .references(() => ProductTable.id, {
       onDelete: "restrict",
     }),
   stripeSessionId: text().notNull().unique(),
@@ -40,8 +40,8 @@ export const PurchaseRelationships = relations(PurchaseTable, ({ one }) => ({
     fields: [PurchaseTable.userId],
     references: [UserTable.id],
   }),
-  product: one(ProductsTable, {
+  product: one(ProductTable, {
     fields: [PurchaseTable.productId],
-    references: [ProductsTable.id],
+    references: [ProductTable.id],
   }),
 }));
