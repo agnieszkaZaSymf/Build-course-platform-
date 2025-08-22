@@ -14,7 +14,7 @@ import Link from "next/link";
 import { ProductStatus } from "@/drizzle/schema/product";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import { deleteProduct } from "../actions/product";
+import { deleteProduct } from "../actions/products";
 
 export function ProductTable({
   products,
