@@ -4,7 +4,6 @@ import arcjet, { detectBot, shield, slidingWindow } from "@arcjet/next";
 import { env } from "./data/env/server";
 import { setUserCountryHeader } from "./lib/userCountryHeader";
 import { NextResponse } from "next/server";
-import { desc } from "drizzle-orm";
 
 const isPublicRoute = createRouteMatcher([
   "/",
@@ -50,13 +49,15 @@ export default clerkMiddleware(async (auth, req) => {
     await auth.protect();
   }
 
-  if (!decision.ip.isVpn() && decision.ip.isProxy()) {
-    const headers = new Headers(req.headers);
+  // Set country header based on IP decision
+  const headers = new Headers(req.headers);
+  if (decision.ip.country) {
     setUserCountryHeader(headers, decision.ip.country);
-    console.log(decision.ip.country);
 
     return NextResponse.next({ request: { headers } });
   }
+
+  return NextResponse.next();
 });
 
 export const config = {
