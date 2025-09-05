@@ -5,7 +5,7 @@ import {
   insertProduct,
   updateProduct as updateProductDb,
   deleteProduct as deleteProductDb,
-} from "@/features/products/db/product";
+} from "@/features/products/db/products";
 import { redirect } from "next/navigation";
 import {
   canCreateProducts,

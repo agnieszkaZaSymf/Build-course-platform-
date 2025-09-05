@@ -4,7 +4,8 @@ type CACHE_TAG =
   | "courses"
   | "userCourseAccess"
   | "courseSections"
-  | "lessons";
+  | "lessons"
+  | "purchases";
 
 // global cache tag for all users
 export function getGlobalTag(tag: CACHE_TAG) {
