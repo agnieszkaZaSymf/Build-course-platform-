@@ -4,12 +4,18 @@ import { UserRole, UserTable } from "@/drizzle/schema";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
+import { redirect } from "next/navigation";
 
 const client = await clerkClient();
 
 // ten kod zawiera funkcje do pobierania i synchronizacji danych użytkowników z Clerk. Auth jest używany do uzyskania informacji o bieżącym użytkowniku, a `syncClerkUserMetadata` aktualizuje metadane użytkownika w Clerk na podstawie danych z bazy danych aplikacji.
 export async function getCurrentUser({ allData = false } = {}) {
   const { userId, sessionClaims, redirectToSignIn } = await auth();
+
+  if (userId != null && sessionClaims.dbId == null) {
+    // Pobierz użytkownika z Clerk, aby uzyskać jego metadane
+    redirect("/api/clerk/syncUsers");
+  }
 
   return {
     clerkUserId: userId, // ID użytkownika w Clerk
